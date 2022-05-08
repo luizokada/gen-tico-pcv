@@ -5,6 +5,7 @@ import grafo.*;
 import path.*;
 import utils.Calculator;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 
@@ -180,8 +181,8 @@ public class Moa {
                 }while(index!=0);
             Mutation(filhoi);
             filhoi.setWeight();
-
-            filhos.add(filhoi);
+            Route filhoBusca = OPT2(filhoi);
+            filhos.add(filhoBusca);
             pai=0;
         }
         pop.add(filhos.get(0));
@@ -195,13 +196,19 @@ public class Moa {
         ArrayList<Route> filhosToBeAdded = new ArrayList<>();
         int Biggestweight = (int) population.get(tamanho).getWeight();
         while (menor){
-            Route filho = filhos.remove();
-            if(filho.getWeight()<Biggestweight){
-                filhosToBeAdded.add(filho);
+            try {
+                Route filho = filhos.remove();
+                if(filho.getWeight()<Biggestweight){
+                    filhosToBeAdded.add(filho);
+                }
+                else{
+                    menor=false;
+                }
+            }finally {
+                menor  =false;
             }
-            else{
-                menor=false;
-            }
+
+
         }
 
         for (int i =0 ;i<filhosToBeAdded.size();i++){
@@ -229,11 +236,12 @@ public class Moa {
         int interacoes = 0;
         while (interacoes<INTERATIONS){
             PriorityQueue<Route> filhos = this.selecao();
-            System.out.print("SELECAO PRONTA ");
+            System.out.print("SELECAO PRONTA \n");
+
             this.Evaluation(filhos);
             System.out.println("INTERACAO: "+ interacoes);
             System.out.print("\n ");
-
+            System.out.print("BESTSOLUTION: "+population.get(0));
             interacoes++;
         }
         Route bestSolution = OPT2(population.get(0));
