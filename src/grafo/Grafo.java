@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Grafo {
 
+
     ArrayList<Vertice> vertices;
 
 
@@ -15,7 +16,7 @@ public class Grafo {
             int x = Integer.parseInt(c.get(i).get(1));
             int y = Integer.parseInt(c.get(i).get(2));
             Vertice v = new Vertice(id,x,y);
-            this.vertices.add(v);
+            boolean add = this.vertices.add(v);
         }
 
     }
