@@ -297,7 +297,7 @@ public class Moa {
 
     public void AG(Grafo g) throws IOException {
         Leitor escritor = new Leitor();
-
+        int geracoesEstagnadas = 0;
         int geracao = 0;
         this.initPopulation(g);
         Collections.sort(population,Route.StuRollno);
@@ -306,7 +306,8 @@ public class Moa {
         }
         System.out.print("\n ");
         escritor.escritor(this.population,geracao);
-        while (geracao<GERACAO){
+        double lastBest = population.get(0).getWeight();
+        while ((geracao<GERACAO)&&(geracoesEstagnadas<=10)){
             PriorityQueue<Route> filhos = this.selecao();
             System.out.print("SELECAO PRONTA \n");
             this.Evaluation(filhos);
@@ -314,6 +315,13 @@ public class Moa {
             System.out.print("BESTSOLUTION: "+population.get(0).getWeight()+"\n");
             escritor.escritor(this.population,geracao);
             geracao++;
+            if(lastBest == population.get(0).getWeight()){
+                geracoesEstagnadas++;
+            }
+            else{
+                geracoesEstagnadas = 0;
+                lastBest = population.get(0).getWeight();
+            }
         }
         Route bestSolution = OPT2(population.get(0));
         bestSolution.print();
