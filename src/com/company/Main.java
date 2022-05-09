@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class Main {
     public final static String[] test = {
+            "tests/pla7397.tsp",
             "tests/d18512.tsp",
             "tests/brd14051.tsp",
             "tests/d15112.tsp",
