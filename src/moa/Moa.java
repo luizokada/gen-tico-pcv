@@ -1,18 +1,21 @@
 package moa;
 
+import Leitor.Leitor;
 import grafo.*;
 
 import path.*;
 import utils.Calculator;
 
-import java.security.NoSuchAlgorithmException;
+import java.io.IOException;
+
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class Moa {
-    final static int POPULATION_SIZE = 1000;
+    final static int POPULATION_SIZE = 100;
     final static double MUTATION_RATE = 0.05;
-    final static int INTERATIONS = 50;
+    final static int GERACAO = 100;
     ArrayList<Route> population = new ArrayList<Route>();
 
 
@@ -76,7 +79,6 @@ public class Moa {
             double newWeight = oldWeight;
             for (i = 1; i < route.getVertices().size() - 2; i++) {
                 for (j = i + 1; j < route.getVertices().size()-1; j++) {
-
                     double entryCost;
                     double exitCost;
 
@@ -88,9 +90,7 @@ public class Moa {
                     if (entryCost < exitCost) {
                         Collections.reverse(route.getVertices().subList(i, j + 1));
                         newWeight-=(exitCost - entryCost);
-
                     }
-
                 }
             }
             if (oldWeight == newWeight) {
@@ -117,10 +117,8 @@ public class Moa {
         for (int i =0; i<(this.POPULATION_SIZE/2);i++){
             ArrayList<Route> selected = tournament(k);
             CX(selected,filhos);
-
         }
         return filhos;
-
 
     }
 
@@ -189,6 +187,80 @@ public class Moa {
         pop.add(filhos.get(1));
     }
 
+    public void PMX(Route firstParent, Route secondParent, PriorityQueue<Route> pop) {
+        Route firstChild = new Route(firstParent);
+        Route secondChild = new Route(secondParent);
+
+        int firstPoint = (int) selectCuttingPoint(0,firstParent.getVertices().size()-2);
+        int secondPoint = (int) selectCuttingPoint(firstPoint,firstParent.getVertices().size()-1);
+
+
+        if (firstPoint==secondPoint){
+            int aux = firstPoint;
+            firstPoint = secondPoint;
+            secondPoint = aux;
+        }
+
+        List<Vertice> firstGene = secondParent.getVertices().subList(firstPoint, secondPoint);
+        int index = 0;
+        for (int i = firstPoint; i < secondPoint; i++) {
+            firstChild.getVertices().set(i, firstGene.get(index));
+            index++;
+        }
+
+        List<Vertice> secondGene = firstParent.getVertices().subList(firstPoint, secondPoint);
+        index = 0;
+        for (int i = firstPoint; i < secondPoint; i++) {
+            secondChild.getVertices().set(i, secondGene.get(index));
+            index++;
+        }
+
+        // removing first parent chromosomes duplicated in first child
+        Route firstList = selectCitiesNotCopied(firstChild, secondParent);
+
+        for (Vertice c : firstList.getVertices()) {
+            Vertice aux = c;
+            while (firstPoint <= firstParent.getVertices().indexOf(c) && secondPoint >= firstParent.getVertices().indexOf(c)) {
+
+                c = firstChild.getVertices().get(firstParent.getVertices().indexOf(c));
+            }
+            firstChild.getVertices().set(firstParent.getVertices().indexOf(c), aux);
+        }
+
+        // removing second parent chromosomes duplicated in second child
+        Route secondList = selectCitiesNotCopied(secondChild, firstParent);
+
+        for (Vertice c : secondList.getVertices()) {
+            Vertice aux = c;
+            while (firstPoint <= secondParent.getVertices().indexOf(c) && secondPoint >= secondParent.getVertices().indexOf(c)) {
+                c = secondChild.getVertices().get(secondParent.getVertices().indexOf(c));
+            }
+            secondChild.getVertices().set(secondParent.getVertices().indexOf(c), aux);
+        }
+
+        // local search
+        Route firstChildSearch = OPT2(firstChild);
+        Route secondChildSearch = OPT2(secondChild);
+
+
+
+        pop.add(firstChild);
+        pop.add(secondChild);
+
+    }
+
+    public Route selectCitiesNotCopied(Route child, Route gene) {
+        // dif entre o filho e o gene
+        Route copyChild = new Route(child);
+        copyChild.getVertices().removeAll(gene.getVertices());
+        return copyChild;
+    }
+
+    public int selectCuttingPoint(int min , int max){
+
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
+
     public void Evaluation(PriorityQueue<Route> filhos){
         boolean menor = true;
         int tamanho = POPULATION_SIZE -1;
@@ -208,9 +280,7 @@ public class Moa {
                 menor  =false;
             }
 
-
         }
-
         for (int i =0 ;i<filhosToBeAdded.size();i++){
             Route filho = filhosToBeAdded.get(i);
             for (int j = 0;j<population.size();j++){
@@ -225,24 +295,25 @@ public class Moa {
     }
 
 
+    public void AG(Grafo g) throws IOException {
+        Leitor escritor = new Leitor();
 
-    public void AG(Grafo g){
+        int geracao = 0;
         this.initPopulation(g);
         Collections.sort(population,Route.StuRollno);
         for(int j = 0 ; j<POPULATION_SIZE;j++){
             System.out.print(population.get(j).getWeight() + " , ");
         }
         System.out.print("\n ");
-        int interacoes = 0;
-        while (interacoes<INTERATIONS){
+        escritor.escritor(this.population,geracao);
+        while (geracao<GERACAO){
             PriorityQueue<Route> filhos = this.selecao();
             System.out.print("SELECAO PRONTA \n");
-
             this.Evaluation(filhos);
-            System.out.println("INTERACAO: "+ interacoes);
-            System.out.print("\n ");
-            System.out.print("BESTSOLUTION: "+population.get(0));
-            interacoes++;
+            System.out.println("INTERACAO: "+ geracao+"\n");
+            System.out.print("BESTSOLUTION: "+population.get(0).getWeight()+"\n");
+            escritor.escritor(this.population,geracao);
+            geracao++;
         }
         Route bestSolution = OPT2(population.get(0));
         bestSolution.print();

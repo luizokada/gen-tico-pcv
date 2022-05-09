@@ -1,11 +1,11 @@
 package Leitor;
 
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import path.Route;
+
+import java.io.*;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -47,13 +47,31 @@ public class Leitor {
         
     }
 
-    public static void escritor(String path) throws IOException {
-        BufferedWriter buffWrite = new BufferedWriter(new FileWriter(path));
-        String linha = "";
-        Scanner in = new Scanner(System.in);
-        System.out.println("Escreva algo: ");
-        linha = in.nextLine();
-        buffWrite.append(linha + "\n");
+    public static void escritor(ArrayList<Route> population,int Geracao) throws IOException {
+        int numCidades = population.get(0).getVertices().size();
+        DecimalFormat df = new DecimalFormat("0,00");
+        df.setRoundingMode(RoundingMode.HALF_DOWN);
+        String arqPath = new String("results/"+numCidades+".csv");
+        File arquivo = new File(arqPath);
+        if (!arquivo.exists()){
+            arquivo.createNewFile();
+            BufferedWriter buffWrite = new BufferedWriter(new FileWriter(arqPath,true));
+            buffWrite.append("Geração");
+            buffWrite.append(";");
+            buffWrite.append("Fitness");
+            buffWrite.append(";");
+            buffWrite.append("\n");
+            buffWrite.close();
+        }
+        BufferedWriter buffWrite = new BufferedWriter(new FileWriter(arqPath,true));
+        String weight= Double.toString(population.get(0).getWeight()).replace('.',',');
+        String geracao = Integer.toString(Geracao);
+
+        buffWrite.append(geracao);
+        buffWrite.append(";");
+        buffWrite.append(weight);
+        buffWrite.append(";");
+        buffWrite.append("\n");
         buffWrite.close();
     }
 
