@@ -220,9 +220,9 @@ public class Moa {
 
         for (Vertice c : firstList.getVertices()) {
             Vertice aux = c;
-            while (firstPoint <= firstParent.getVertices().indexOf(c) && secondPoint >= firstParent.getVertices().indexOf(c)) {
+            while ((firstPoint <= firstParent.getVertices().indexOf(c) && (secondPoint >= firstParent.getVertices().indexOf(c)))) {
 
-                c = firstChild.getVertices().get(firstParent.getVertices().indexOf(c));
+
             }
             firstChild.getVertices().set(firstParent.getVertices().indexOf(c), aux);
         }
