@@ -164,6 +164,8 @@ public class Moa {
             filho.getVertices().set(j,aux);
         }
     }
+
+
     public void CX(ArrayList<Route> selected, PriorityQueue<Route> pop){
         ArrayList<Route> filhos = new ArrayList<>();
 
@@ -303,10 +305,7 @@ public class Moa {
         int geracao = 0;
         this.initPopulation(g);
         Collections.sort(population,Route.StuRollno);
-        for(int j = 0 ; j<POPULATION_SIZE;j++){
-            System.out.print(population.get(j).getWeight() + " , ");
-        }
-        System.out.print("\n ");
+
         escritor.escritor(this.population,geracao);
         double lastBest = population.get(0).getWeight();
 
@@ -314,17 +313,17 @@ public class Moa {
         while ((geracao<GERACAO)&&(totalTime<=14400000)){
 
             PriorityQueue<Route> filhos = this.operacoes();
-            System.out.print("SELECAO PRONTA \n");
+
             this.Evaluation(filhos);
-            System.out.println("INTERACAO: "+ geracao+"\n");
-            System.out.print("BESTSOLUTION: "+population.get(0).getWeight()+"\n");
+
             escritor.escritor(this.population,geracao);
             geracao++;
             spendTime = System.currentTimeMillis();
             totalTime = spendTime - initTime;
         }
         Route bestSolution = OPT2(population.get(0));
-        bestSolution.print();
+        System.out.println("BES SOLUTION"+bestSolution.getWeight());
+
     }
 
 }

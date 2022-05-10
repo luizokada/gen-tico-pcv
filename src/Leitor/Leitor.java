@@ -13,8 +13,6 @@ import java.util.Scanner;
 public class Leitor {
 
     public static ArrayList<ArrayList<String>> leitor(String path) throws IOException {
-        String userDirectory = new File("").getAbsolutePath();
-        System.out.println(userDirectory);
         BufferedReader buffRead = new BufferedReader(new FileReader(path));
 
         ArrayList<ArrayList<String>> constructor = new ArrayList<>();
