@@ -305,7 +305,7 @@ public class Moa {
         int geracao = 0;
         this.initPopulation(g);
         Collections.sort(population,Route.StuRollno);
-
+-,-
         escritor.escritor(this.population,geracao);
         double lastBest = population.get(0).getWeight();
 
@@ -322,7 +322,7 @@ public class Moa {
             totalTime = spendTime - initTime;
         }
         Route bestSolution = OPT2(population.get(0));
-        System.out.println("BES SOLUTION"+bestSolution.getWeight());
+        System.out.println("BEST SOLUTION"+bestSolution.getWeight());
 
     }
 
