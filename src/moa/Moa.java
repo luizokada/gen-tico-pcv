@@ -110,8 +110,7 @@ public class Moa {
         }
     }
 
-
-    public PriorityQueue<Route> selecao(){
+    public PriorityQueue<Route> operacoes(){
         PriorityQueue<Route> filhos = new PriorityQueue<>();
         int k =3;
         for (int i =0; i<(this.POPULATION_SIZE/2);i++){
@@ -165,6 +164,8 @@ public class Moa {
             filho.getVertices().set(j,aux);
         }
     }
+
+
     public void CX(ArrayList<Route> selected, PriorityQueue<Route> pop){
         ArrayList<Route> filhos = new ArrayList<>();
 
@@ -297,30 +298,32 @@ public class Moa {
 
     public void AG(Grafo g) throws IOException {
         Leitor escritor = new Leitor();
+
         long initTime = System.currentTimeMillis();
         long spendTime = System.currentTimeMillis();
         long totalTime = spendTime - initTime;
         int geracao = 0;
         this.initPopulation(g);
         Collections.sort(population,Route.StuRollno);
-        for(int j = 0 ; j<POPULATION_SIZE;j++){
-            System.out.print(population.get(j).getWeight() + " , ");
-        }
-        System.out.print("\n ");
+
         escritor.escritor(this.population,geracao);
+        double lastBest = population.get(0).getWeight();
+
+
         while ((geracao<GERACAO)&&(totalTime<=14400000)){
-            PriorityQueue<Route> filhos = this.selecao();
-            System.out.print("SELECAO PRONTA \n");
+
+            PriorityQueue<Route> filhos = this.operacoes();
+
             this.Evaluation(filhos);
-            System.out.println("INTERACAO: "+ geracao+"\n");
-            System.out.print("BESTSOLUTION: "+population.get(0).getWeight()+"\n");
+
             escritor.escritor(this.population,geracao);
             geracao++;
             spendTime = System.currentTimeMillis();
             totalTime = spendTime - initTime;
         }
         Route bestSolution = OPT2(population.get(0));
-        bestSolution.print();
+        System.out.println("BES SOLUTION"+bestSolution.getWeight());
+
     }
 
 }

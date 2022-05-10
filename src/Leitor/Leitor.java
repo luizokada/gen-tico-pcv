@@ -14,6 +14,7 @@ public class Leitor {
 
     public static ArrayList<ArrayList<String>> leitor(String path) throws IOException {
         BufferedReader buffRead = new BufferedReader(new FileReader(path));
+
         ArrayList<ArrayList<String>> constructor = new ArrayList<>();
         String linha = "";
         int count = 0;
@@ -50,7 +51,6 @@ public class Leitor {
     public static void escritor(ArrayList<Route> population,int Geracao) throws IOException {
         int numCidades = population.get(0).getVertices().size();
         DecimalFormat df = new DecimalFormat("0,00");
-        df.setRoundingMode(RoundingMode.HALF_DOWN);
         String arqPath = new String("results/"+numCidades+".csv");
         File arquivo = new File(arqPath);
         if (!arquivo.exists()){
