@@ -335,7 +335,7 @@ public class Moa {
             spendTime = System.currentTimeMillis();
             totalTime = spendTime - initTime;
         }
-        Route bestSolution = OPT2(population.get(0));
+        Route bestSolution = population.get(0);
         System.out.println("BEST SOLUTION: "+bestSolution.getWeight());
 
 
@@ -363,7 +363,7 @@ public class Moa {
             spendTime = System.currentTimeMillis();
             totalTime = spendTime - initTime;
         }
-        Route bestSolution = OPT2(population.get(0));
+        Route bestSolution = population.get(0);
         System.out.println("BEST SOLUTION: "+bestSolution.getWeight());
 
 
