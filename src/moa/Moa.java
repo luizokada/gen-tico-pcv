@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 
 public class Moa {
@@ -110,12 +111,24 @@ public class Moa {
         }
     }
 
-    public PriorityQueue<Route> operacoes(){
+    public PriorityQueue<Route> operacoesCX(){
         PriorityQueue<Route> filhos = new PriorityQueue<>();
         int k =3;
         for (int i =0; i<(this.POPULATION_SIZE/2);i++){
             ArrayList<Route> selected = tournament(k);
-            CX(selected,filhos);
+            CX(selected, filhos);
+
+        }
+        return filhos;
+
+    }
+
+    public PriorityQueue<Route> operacoesPMX(){
+        PriorityQueue<Route> filhos = new PriorityQueue<>();
+        int k =3;
+        for (int i =0; i<(this.POPULATION_SIZE/2);i++){
+            ArrayList<Route> selected = tournament(k);
+            PMX(selected.get(0), selected.get(1), filhos);
         }
         return filhos;
 
@@ -167,25 +180,25 @@ public class Moa {
 
 
     public void CX(ArrayList<Route> selected, PriorityQueue<Route> pop){
-        ArrayList<Route> filhos = new ArrayList<>();
+        ArrayList<Route> children = new ArrayList<>();
 
-        int pai = 1;
+        int parent = 1;
         for (int i = 0; i<2;i++){
-            Route filhoi = new Route(selected.get(pai));
+            Route childi = new Route(selected.get(parent));
 
             int index =0;
                 do{
-                    filhoi.getVertices().set(index,selected.get(i).getVertices().get(index));
-                    index = selected.get(pai).getVertices().indexOf(filhoi.getVertices().get(index));
+                    childi.getVertices().set(index,selected.get(i).getVertices().get(index));
+                    index = selected.get(parent).getVertices().indexOf(childi.getVertices().get(index));
                 }while(index!=0);
-            Mutation(filhoi);
-            filhoi.setWeight();
-            Route filhoBusca = OPT2(filhoi);
-            filhos.add(filhoBusca);
-            pai=0;
+            Mutation(childi);
+            childi.setWeight();
+            Route childSearch = OPT2(childi);
+            children.add(childSearch);
+            parent=0;
         }
-        pop.add(filhos.get(0));
-        pop.add(filhos.get(1));
+        pop.add(children.get(0));
+        pop.add(children.get(1));
     }
 
     public void PMX(Route firstParent, Route secondParent, PriorityQueue<Route> pop) {
@@ -221,9 +234,9 @@ public class Moa {
 
         for (Vertice c : firstList.getVertices()) {
             Vertice aux = c;
-            while ((firstPoint <= firstParent.getVertices().indexOf(c) && (secondPoint >= firstParent.getVertices().indexOf(c)))) {
-
-
+            while ((firstPoint <= firstParent.getVertices().indexOf(c) && (secondPoint > firstParent.getVertices().indexOf(c)))) {
+                int indexInParent = firstParent.getVertices().indexOf(c);
+                c = firstChild.getVertices().get(indexInParent);
             }
             firstChild.getVertices().set(firstParent.getVertices().indexOf(c), aux);
         }
@@ -233,28 +246,32 @@ public class Moa {
 
         for (Vertice c : secondList.getVertices()) {
             Vertice aux = c;
-            while (firstPoint <= secondParent.getVertices().indexOf(c) && secondPoint >= secondParent.getVertices().indexOf(c)) {
+            while (firstPoint <= secondParent.getVertices().indexOf(c) && secondPoint > secondParent.getVertices().indexOf(c)) {
                 c = secondChild.getVertices().get(secondParent.getVertices().indexOf(c));
             }
             secondChild.getVertices().set(secondParent.getVertices().indexOf(c), aux);
         }
 
+        Mutation(firstChild);
+        Mutation(secondChild);
+
+        firstChild.setWeight();
+        secondChild.setWeight();
+
         // local search
         Route firstChildSearch = OPT2(firstChild);
         Route secondChildSearch = OPT2(secondChild);
 
-
-
-        pop.add(firstChild);
-        pop.add(secondChild);
+        pop.add(firstChildSearch);
+        pop.add(secondChildSearch);
 
     }
 
-    public Route selectCitiesNotCopied(Route child, Route gene) {
-        // dif entre o filho e o gene
-        Route copyChild = new Route(child);
-        copyChild.getVertices().removeAll(gene.getVertices());
-        return copyChild;
+    public Route selectCitiesNotCopied(Route child, Route parent) {
+        // dif between parent and child
+        Route copyParent = new Route(parent);
+        copyParent.getVertices().removeAll(child.getVertices());
+        return copyParent;
     }
 
     public int selectCuttingPoint(int min , int max){
@@ -305,24 +322,50 @@ public class Moa {
         int geracao = 0;
         this.initPopulation(g);
         Collections.sort(population,Route.StuRollno);
--,-
-        escritor.escritor(this.population,geracao);
-        double lastBest = population.get(0).getWeight();
-
+        escritor.escritor(this.population,geracao,"PMX");
 
         while ((geracao<GERACAO)&&(totalTime<=14400000)){
 
-            PriorityQueue<Route> filhos = this.operacoes();
+            PriorityQueue<Route> filhos = this.operacoesCX();
 
             this.Evaluation(filhos);
 
-            escritor.escritor(this.population,geracao);
+            escritor.escritor(this.population,geracao,"CX");
             geracao++;
             spendTime = System.currentTimeMillis();
             totalTime = spendTime - initTime;
         }
         Route bestSolution = OPT2(population.get(0));
-        System.out.println("BEST SOLUTION"+bestSolution.getWeight());
+        System.out.println("BEST SOLUTION: "+bestSolution.getWeight());
+
+
+    }
+
+    public void AG1(Grafo g) throws IOException {
+        Leitor escritor = new Leitor();
+
+        long initTime = System.currentTimeMillis();
+        long spendTime = System.currentTimeMillis();
+        long totalTime = spendTime - initTime;
+        int geracao = 0;
+        this.initPopulation(g);
+        Collections.sort(population,Route.StuRollno);
+        escritor.escritor(this.population,geracao,"PMX");
+
+        while ((geracao<GERACAO)&&(totalTime<=14400000)){
+
+            PriorityQueue<Route> filhos = this.operacoesPMX();
+
+            this.Evaluation(filhos);
+
+            escritor.escritor(this.population,geracao,"PMX");
+            geracao++;
+            spendTime = System.currentTimeMillis();
+            totalTime = spendTime - initTime;
+        }
+        Route bestSolution = OPT2(population.get(0));
+        System.out.println("BEST SOLUTION: "+bestSolution.getWeight());
+
 
     }
 

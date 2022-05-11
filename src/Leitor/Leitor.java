@@ -48,10 +48,10 @@ public class Leitor {
         
     }
 
-    public static void escritor(ArrayList<Route> population,int Geracao) throws IOException {
+    public static void escritor(ArrayList<Route> population,int Geracao, String operador) throws IOException {
         int numCidades = population.get(0).getVertices().size();
-        DecimalFormat df = new DecimalFormat("0,00");
-        String arqPath = new String("results/"+numCidades+".csv");
+
+        String arqPath = new String("results/"+numCidades+operador+".csv");
         File arquivo = new File(arqPath);
         if (!arquivo.exists()){
             arquivo.createNewFile();
